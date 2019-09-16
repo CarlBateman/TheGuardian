@@ -12,21 +12,23 @@
 
   var createScene = function () {
     var scene = new BABYLON.Scene(engine);
+    var vrHelper = scene.createDefaultVRExperience();
+
     //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
-    var camera = new BABYLON.WebVRFreeCamera("camera1", new BABYLON.Vector3(0, 0, 0), scene);
-    camera.angularSensibility = 10000;
-    camera.speed = 1;
+    //var camera = new BABYLON.WebVRFreeCamera("camera1", new BABYLON.Vector3(0, 0, 0), scene);
+    //camera.angularSensibility = 10000;
+    //camera.speed = 1;
 
-    camera.position.x = 3.3;
-    camera.position.y = 1.1;
-    camera.position.z = -3.3;
+    //camera.position.x = 3.3;
+    //camera.position.y = 1.1;
+    //camera.position.z = -3.3;
 
 
-    camera.setTarget(BABYLON.Vector3.Zero());
-    camera.attachControl(canvas, true);
+    //camera.setTarget(BABYLON.Vector3.Zero());
+    //camera.attachControl(canvas, true);
 
-    camera.rotation.x = 0.75;
-    camera.rotation.y = -2.5;
+    //camera.rotation.x = 0.75;
+    //camera.rotation.y = -2.5;
 
     var light = new BABYLON.DirectionalLight("DirectionalLight", new BABYLON.Vector3(1, -1, 0), scene);
     light.intensity = 0.7;
