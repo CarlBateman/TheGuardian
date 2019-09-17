@@ -3,16 +3,17 @@
   cos = Math.cos;
   sin = Math.sin;
 
-// add terrain generated with Perlin noise
-// VR
-// HUD
-// States
+  // add terrain generated with Perlin noise
+  // VR
+  // HUD
+  // States
   var canvas = document.getElementById('renderCanvas');
   var engine = new BABYLON.Engine(canvas, true);
 
   var createScene = function () {
     var scene = new BABYLON.Scene(engine);
-    var vrHelper = scene.createDefaultVRExperience();
+    var vrHelper = scene.createDefaultVRExperience({ useMultiview: true });
+
 
     //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
     //var camera = new BABYLON.WebVRFreeCamera("camera1", new BABYLON.Vector3(0, 0, 0), scene);
@@ -36,32 +37,52 @@
 
     var seed = 10;
     resolution = { x: 10, y: 10 };
+    scene.cameras[0].position.y = getY(seed, 0, 0) + 2;
 
 
     function getY(seed, x, z) {
-      let y = cos((x) / 7) * sin((z) / 13) / 5;
-      y += cos((x) / 27) * sin((z) / 31);
-      y *= 5;
+      // no of levels
+      // max height
+
+      let y = cos((5 * x + seed) / 7) + sin((5 * z + seed) / 13);
+      y += cos((5 * x + seed) / 27) + sin((5 * z + seed) / 31);
+      //y *= .5;
       y = Math.ceil(y);
-      y *= 2;
+      //y *= 2;
       return y;
     }
 
     var tiles = [];
     let iCol = 0;
-    for (var x = 0; x < 100; x++) {
+
+    let size = 30;
+    let size2 = size / 2;
+
+    // resue materials
+    // freeze materials - material.freeze();
+    // updatable
+    // mesh.freezeWorldMatrix();
+    // instance -- clone
+    // scene.blockMaterialDirtyMechanism = true;
+
+    let tileSources = [];
+    tileSources.push(BABYLON.MeshBuilder.CreateGround("tile", { width: 1, height: 1, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene));
+    tileSources[0].material = new BABYLON.StandardMaterial("check0", scene);
+    tileSources[0].material.diffuseColor = new BABYLON.Color3(1, 0.5, 0.5);
+    tileSources[0].visible = false;
+
+    tileSources.push(BABYLON.MeshBuilder.CreateGround("tile", { width: 1, height: 1, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene));
+    tileSources[1].material = new BABYLON.StandardMaterial("check1", scene);
+    tileSources[1].material.diffuseColor = new BABYLON.Color3(0.5, 1, 0.5);
+    tileSources[1].visible = false;
+
+    var tile;
+    for (var x = 0; x < size; x++) {
       iCol = x % 2;
 
-      for (var z = 0; z < 100; z++) {
+      for (var z = 0; z < size; z++) {
         iCol += 1;
         iCol %= 2;
-
-        var tile = BABYLON.MeshBuilder.CreateGround("tile", { width: 1, height: 1, updatable: true, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
-        tile.material = new BABYLON.StandardMaterial("myMaterial", scene);
-
-        tile.position.x = x * 1.1 - 50;
-        tile.position.z = z * 1.1 - 50;
-        tiles.push(tile);
 
         let y0 = getY(seed, x + 0, z + 1);
         let y1 = getY(seed, x + 1, z + 1);
@@ -69,13 +90,14 @@
         let y3 = getY(seed, x + 1, z + 0);
 
         if (y0 === y1 && y0 === y2 && y0 === y3) {
+          tile = tileSources[iCol].createInstance();
+
           tile.position.y = getY(seed, x, z);
-          if (iCol === 0) {
-            tile.material.diffuseColor = new BABYLON.Color3(1, 0.5, 0.5);
-          } else {
-            tile.material.diffuseColor = new BABYLON.Color3(0.5, 1, 0.5);
-          }
         } else {
+          tile = BABYLON.MeshBuilder.CreateGround("tile", { width: 1, height: 1, updatable: true, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
+          tile.material = new BABYLON.StandardMaterial("side", scene);
+          tile.material.diffuseColor = new BABYLON.Color3(1, 0, 1);
+
           let positions = tile.getVerticesData(BABYLON.VertexBuffer.PositionKind);
 
           positions[1 + 0] = y0;
@@ -101,59 +123,18 @@
             positions[1 + 6] = y1;
             positions[1 + 9] = y2;
           }
-          tile.material.diffuseColor = new BABYLON.Color3(1, 0, 1);
 
           tile.updateVerticesData(BABYLON.VertexBuffer.PositionKind, positions);
 
-          ////Calculations of normals added
-          //var indices = tile.getIndices();
-          //var normals = [];
-          //BABYLON.VertexData.ComputeNormals(positions, indices, normals);
-          //tile.updateVerticesData(BABYLON.VertexBuffer.NormalKind, normals);
-
-
           tile.convertToFlatShadedMesh();
-          //tile.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
-          //tile.material.wireframe = true;
         }
-
-
+        tile.position.x = x * 1.1 - size2;
+        tile.position.z = z * 1.1 - size2;
+        tiles.push(tile);
       }
     }
 
-    //for (var x = 0; x < 99; x++) {
-    //  for (var z = 0; z < 99; z++) {
-    //    let i = x * 100 + z;
-    //    let j = i + 1;
-    //    let k = (x + 1) * 100 + z;
-    //    if (tiles[i].position.y < tiles[j].position.y || tiles[i].position.y < tiles[k].position.y) {
-    //      tiles[i].material.diffuseColor = new BABYLON.Color3(0, 1, 1);
-    //    }
-    //    if (tiles[i].position.y < tiles[j].position.y && tiles[i].position.y < tiles[k].position.y) {
-    //      tiles[i].material.diffuseColor = new BABYLON.Color3(1, 0, 1);
-    //    }
-
-    //  }
-    //}
-    //for (var x = 1; x < 100; x++) {
-    //  for (var z = 1; z < 100; z++) {
-    //    let i = x * 100 + z;
-    //    let j = i - 1;
-    //    let k = (x - 1) * 100 + z;
-    //    if (tiles[i].position.y < tiles[j].position.y || tiles[i].position.y < tiles[k].position.y) {
-    //      tiles[i].material.diffuseColor = new BABYLON.Color3(1, 1, 0);
-    //    }
-    //    if (tiles[i].position.y < tiles[j].position.y && tiles[i].position.y < tiles[k].position.y) {
-    //      tiles[i].material.diffuseColor = new BABYLON.Color3(0, 0, 0);
-    //    }
-
-    //  }
-    //}
-    //tiles[0].material.diffuseColor = new BABYLON.Color3(0, 0, 0);
-    //tiles[99].material.diffuseColor = new BABYLON.Color3(1, 1, 1);
-
     return scene;
-
   };
 
   var scene = createScene();

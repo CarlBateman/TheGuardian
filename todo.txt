@@ -1,4 +1,16 @@
-﻿VR
-Perlin noise
-Seed
-A-Frame?
+﻿A-Frame?
+
+Select
+Teleport
+
+Click
+
+Boulder
+Tree
+Models
+Sentinel
+Synthoid
+Sentry
+
+Shaders for edges
+PBR
