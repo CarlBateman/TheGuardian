@@ -4,32 +4,22 @@
   sin = Math.sin;
 
   // add terrain generated with Perlin noise
-  // VR
   // HUD
   // States
+  // teleport
+
+    // freeze materials - material.freeze(); <- but custom shaders
+    // updatable
+    // mesh.freezeWorldMatrix();
+    // scene.blockMaterialDirtyMechanism = true;
+    //  scene.freezeActiveMeshes();
+
   var canvas = document.getElementById('renderCanvas');
   var engine = new BABYLON.Engine(canvas, true);
 
   var createScene = function () {
     var scene = new BABYLON.Scene(engine);
     var vrHelper = scene.createDefaultVRExperience({ useMultiview: true });
-
-
-    //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
-    //var camera = new BABYLON.WebVRFreeCamera("camera1", new BABYLON.Vector3(0, 0, 0), scene);
-    //camera.angularSensibility = 10000;
-    //camera.speed = 1;
-
-    //camera.position.x = 3.3;
-    //camera.position.y = 1.1;
-    //camera.position.z = -3.3;
-
-
-    //camera.setTarget(BABYLON.Vector3.Zero());
-    //camera.attachControl(canvas, true);
-
-    //camera.rotation.x = 0.75;
-    //camera.rotation.y = -2.5;
 
     var light = new BABYLON.DirectionalLight("DirectionalLight", new BABYLON.Vector3(1, -1, 0), scene);
     light.intensity = 0.7;
@@ -38,6 +28,18 @@
     var seed = 10;
     resolution = { x: 10, y: 10 };
     scene.cameras[0].position.y = getY(seed, 0, 0) + 2;
+
+    var plane = BABYLON.MeshBuilder.CreatePlane("plane", { width: .64, size: .32, tileSize: 1 }, scene);
+    plane.material = new BABYLON.StandardMaterial("myMaterial", scene);
+    plane.material.diffuseTexture = new BABYLON.Texture("crosshair.gif", scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+    plane.material.diffuseTexture.hasAlpha = true;
+    plane.material.emissiveTexture = new BABYLON.Texture("crosshair.gif", scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+    //plane.material.emissiveTexture.hasAlpha = true;
+    plane.position.z = 6;
+    plane.parent = scene.cameras[0];
+    plane.renderingGroupId = 1;
+
+    light.excludedMeshes.push(plane);
 
 
     function getY(seed, x, z) {
@@ -57,13 +59,6 @@
 
     let size = 30;
     let size2 = size / 2;
-
-    // resue materials
-    // freeze materials - material.freeze();
-    // updatable
-    // mesh.freezeWorldMatrix();
-    // instance -- clone
-    // scene.blockMaterialDirtyMechanism = true;
 
     let tileSources = [];
     tileSources.push(BABYLON.MeshBuilder.CreateGround("tile", { width: 1, height: 1, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene));
