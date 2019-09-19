@@ -42,6 +42,21 @@
     light.excludedMeshes.push(plane);
 
 
+    BABYLON.Effect.ShadersStore["Lines1PixelShader"] = 
+    `precision highp float;
+
+    varying vec2 vUV;
+    void main(void) {
+        vec2 t = abs(vUV-.5) * 2.;// / gl_FragCoord.z ;
+        t =1.-t;
+        float bary = step(0.01, min(t.x, t.y));
+
+        gl_FragColor = vec4(bary,bary,bary, 1.0);
+    }`;
+
+    var linesShader = { fragmentElement: 'LinesPixelShader' };
+    var customProcText = new BABYLON.CustomProceduralTexture("customtext", "Lines1", 1024, scene);
+
     function getY(seed, x, z) {
       // no of levels
       // max height
@@ -64,11 +79,16 @@
     tileSources.push(BABYLON.MeshBuilder.CreateGround("tile", { width: 1, height: 1, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene));
     tileSources[0].material = new BABYLON.StandardMaterial("check0", scene);
     tileSources[0].material.diffuseColor = new BABYLON.Color3(1, 0.5, 0.5);
+    tileSources[0].material.ambientTexture = customProcText;
+    tileSources[0].material.specularTexture = customProcText;
+
     tileSources[0].visible = false;
 
     tileSources.push(BABYLON.MeshBuilder.CreateGround("tile", { width: 1, height: 1, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene));
     tileSources[1].material = new BABYLON.StandardMaterial("check1", scene);
     tileSources[1].material.diffuseColor = new BABYLON.Color3(0.5, 1, 0.5);
+    tileSources[1].material.ambientTexture = customProcText;
+    tileSources[1].material.specularTexture = customProcText;
     tileSources[1].visible = false;
 
     var tile;
@@ -92,6 +112,8 @@
           tile = BABYLON.MeshBuilder.CreateGround("tile", { width: 1, height: 1, updatable: true, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
           tile.material = new BABYLON.StandardMaterial("side", scene);
           tile.material.diffuseColor = new BABYLON.Color3(1, 0, 1);
+          tile.material.ambientTexture = customProcText;
+          tile.material.specularTexture = customProcText;
 
           let positions = tile.getVerticesData(BABYLON.VertexBuffer.PositionKind);
 
@@ -123,8 +145,8 @@
 
           tile.convertToFlatShadedMesh();
         }
-        tile.position.x = x * 1.1 - size2;
-        tile.position.z = z * 1.1 - size2;
+        tile.position.x = x - size2;
+        tile.position.z = z - size2;
         tiles.push(tile);
       }
     }
