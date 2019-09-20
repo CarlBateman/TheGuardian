@@ -8,18 +8,23 @@
   // States
   // teleport
 
+  // hex terrain
+
     // freeze materials - material.freeze(); <- but custom shaders
     // updatable
     // mesh.freezeWorldMatrix();
     // scene.blockMaterialDirtyMechanism = true;
     //  scene.freezeActiveMeshes();
 
+    // pointerlock (https://cs16.herokuapp.com/  -- setup.js)
+
   var canvas = document.getElementById('renderCanvas');
   var engine = new BABYLON.Engine(canvas, true);
+  var plane;
 
   var createScene = function () {
     var scene = new BABYLON.Scene(engine);
-    var vrHelper = scene.createDefaultVRExperience({ useMultiview: true });
+    vrHelper = scene.createDefaultVRExperience({ useMultiview: true });
 
     var light = new BABYLON.DirectionalLight("DirectionalLight", new BABYLON.Vector3(1, -1, 0), scene);
     light.intensity = 0.7;
@@ -29,18 +34,86 @@
     resolution = { x: 10, y: 10 };
     scene.cameras[0].position.y = getY(seed, 0, 0) + 2;
 
-    var plane = BABYLON.MeshBuilder.CreatePlane("plane", { width: .64, size: .32, tileSize: 1 }, scene);
+    plane = BABYLON.MeshBuilder.CreatePlane("plane", { width: .64, size: .32, tileSize: 1 }, scene);
     plane.material = new BABYLON.StandardMaterial("myMaterial", scene);
     plane.material.diffuseTexture = new BABYLON.Texture("crosshair.gif", scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
     plane.material.diffuseTexture.hasAlpha = true;
     plane.material.emissiveTexture = new BABYLON.Texture("crosshair.gif", scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
     //plane.material.emissiveTexture.hasAlpha = true;
     plane.position.z = 6;
-    plane.parent = scene.cameras[0];
+    plane.isPickable = false;
+    //plane.parent = vrHelper.webVRCamera;
+    //plane.parent = vrHelper.deviceOrientationCamera;
+    //plane.parent = scene.activeCamera;
+
+    plane.parent = vrHelper.currentVRCamera;
+      plane.parent = vrHelper.webVRCamera;
     plane.renderingGroupId = 1;
 
     light.excludedMeshes.push(plane);
+    //engine.enterPointerlock();
 
+    canvas.requestPointerLock();
+
+
+    scene.onBeforeCameraRenderObservable.add((camera) => {
+      plane.parent = camera;
+      //canvas.requestPointerLock();
+    });
+    //vrHelper.onEnteringVRObservable.add(() => {
+    //  plane.parent = vrHelper.deviceOrientationVRHelper;
+    //});
+    //vrHelper.onExitingVR.add(() => {
+    vrHelper.onExitingVRObservable.add(() => {
+    //  //plane.parent = vrHelper.deviceOrientationCamera;
+    //  //debugger;
+    //  engine.enterPointerlock();
+    //  scene.getEngine().isPointerLock = true;
+    //  scene.getEngine().enterPointerlock();
+      setTimeout(() => {
+        canvas.requestPointerLock();
+      }, 1000);
+          //canvas.requestPointerLock();
+    });
+
+    scene.onKeyboardObservable.add((kbInfo) => {
+      switch (kbInfo.type) {
+        //case BABYLON.KeyboardEventTypes.KEYDOWN:
+        //  console.log("KEY DOWN: ", kbInfo.event.key);
+        //  break;
+        case BABYLON.KeyboardEventTypes.KEYUP:
+          canvas.requestPointerLock();
+          break;
+      }
+    });
+
+    //scene.onPointerDown = function () {
+    //  if (!document.pointerLockElement) {
+    //    engine.enterPointerlock();
+    //  }
+    //  else {
+    //    engine.exitPointerlock();
+    //  }
+    //};
+
+
+    //// GUI
+    //var plane = BABYLON.Mesh.CreatePlane("plane", 2);
+    ////plane.parent = sphere;
+    //plane.position.y = 2;
+
+    //var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(plane);
+
+    //var button1 = BABYLON.GUI.Button.CreateSimpleButton("but1", "Click Me");
+    //button1.width = 1;
+    //button1.height = 0.4;
+    //button1.color = "white";
+    //button1.fontSize = 50;
+    //button1.background = "green";
+    //button1.onPointerUpObservable.add(function () {
+    //  alert("you did it!");
+    //});
+    //advancedTexture.addControl(button1);
 
     BABYLON.Effect.ShadersStore["Lines1PixelShader"] = 
     `precision highp float;
@@ -151,10 +224,81 @@
       }
     }
 
+    box = BABYLON.MeshBuilder.CreateCylinder("box", { height: .5, diameter: .9, tessellation: 8 }, scene);
+    box.convertToFlatShadedMesh();
+    box.material = new BABYLON.StandardMaterial("boulder", scene);
+    box.material.diffuseColor = new BABYLON.Color3(.5, .5, 1);
+    box.material.ambientTexture = customProcText;
+    box.material.specularTexture = customProcText;
+    box.visible = false;
+
     return scene;
   };
 
+  var box;
+  var vrHelper;
+
   var scene = createScene();
+  scene.onPointerObservable.add((pointerInfo) => {
+    switch (pointerInfo.type) {
+      //case BABYLON.PointerEventTypes.POINTERDOWN:
+      //	console.log("POINTER DOWN");
+      //	break;
+      case BABYLON.PointerEventTypes.POINTERUP:
+        //var ray = vrHelper.currentVRCamera.getForwardRay(99999);
+
+        //let rayHelper = new BABYLON.RayHelper(ray);
+        //rayHelper.show(scene);
+
+        //var pickResult = scene.pickWithRay(ray);
+
+        var pickResult = scene.pick(engine.getRenderWidth() / 2, engine.getRenderHeight() / 2);
+        if (pickResult.pickedMesh !== null) {
+          //console.log(scene.pointerX, scene.pointerX);
+          box.position.x = pickResult.pickedMesh.position.x;
+          box.position.y = pickResult.pickedMesh.position.y + .25;
+          box.position.z = pickResult.pickedMesh.position.z;
+          box.visible = true;
+
+          console.log(pickResult.pickedMesh.position);
+          console.log(box.position);
+          console.log("");
+
+          //console.log(scene.pointerX, scene.pointerY);
+          //console.log(engine.getRenderWidth()/2, engine.getRenderHeight()/2);
+
+        }
+
+
+        //console.log("POINTER UP");
+        break;
+      //case BABYLON.PointerEventTypes.POINTERMOVE:
+      //	console.log("POINTER MOVE");
+      //	break;
+      //case BABYLON.PointerEventTypes.POINTERWHEEL:
+      //	console.log("POINTER WHEEL");
+      //	break;
+      //case BABYLON.PointerEventTypes.POINTERPICK:
+      //	console.log("POINTER PICK");
+      //	break;
+      //case BABYLON.PointerEventTypes.POINTERTAP:
+      //	console.log("POINTER TAP");
+      //	break;
+      //case BABYLON.PointerEventTypes.POINTERDOUBLETAP:
+      //	console.log("POINTER DOUBLE-TAP");
+      //	break;
+    }
+  });
+
+  //function mousemovef() {
+  //  var pickResult = scene.pick(scene.pointerX, scene.pointerY);
+
+  //  if (pickResult.hit) {
+  //    var diffX = pickResult.pickedPoint.x - box.position.x;
+  //    var diffY = pickResult.pickedPoint.z - box.position.z;
+  //    box.rotation.y = Math.atan2(diffX, diffY);
+  //  }
+  //}
 
   engine.runRenderLoop(function () {
     scene.render();

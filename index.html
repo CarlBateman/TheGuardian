@@ -5,45 +5,28 @@
   <title>The Guardian VR</title>
 
   <style>
-      html, body {
-          overflow: hidden;
-          width   : 100%;
-          height  : 100%;
-          margin  : 0;
-          padding : 0;
-      }
+    html, body {
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
 
-      #renderCanvas {
-          width   : 100%;
-          height  : 100%;
-          touch-action: none;
-      }
+    #renderCanvas {
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
   </style>
 
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <!--<script src="https://preview.babylonjs.com/babylon.js"></script>-->
   <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
-  <!--<script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>-->
+  <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
 
-  <script type="application/pixelShader" id="LinesPixelShader">
-    precision highp float;
+  <script src="main.js"></script>
 
-    varying vec2 vUV;
-    void main(void) {
-     // gl_FragColor = vec4(1., 1., 0.5, 1.0);
-    gl_FragColor = vec4(vUV.x,vUV.y,-vUV.x, 1.0);
-
-        vec2 t = abs(vUV-.5) * 2.;
-        float c = max(t.x, t.y);
-        t =1.-t;
-        //t= cos(t*10.);
-        float bary = step(0.01, min(t.x, t.y));
-        float bary1 = smoothstep(0.5,0.2,min(t.x, t.y));
-        //if(bary1 == 0.) discard;
-
-        gl_FragColor = vec4(bary,bary,bary, 1.0);
-    }
-  </script>
-<script src="main.js"></script>
 </head>
 <body>
   <canvas id="renderCanvas" touch-action="none"></canvas>
