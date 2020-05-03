@@ -1,4 +1,18 @@
-﻿A-Frame?
+﻿Generic framework "drop-in" three.js, PlayCanvas, etc.
+
+State
+  start
+  play
+  pause
+
+
+
+Optimise
+Line of sight collision
+Interaction with one button
+
+
+A-Frame?
 
 Select
 Teleport
@@ -14,3 +28,36 @@ Sentry
 
 Shaders for edges
 PBR
+
+
+////////////////////////////////////
+tidy code
+States
+
+shader edges
+
+HUD
+replace cross-hair with circle and other info (e.g. dist to valid square)?
+interactions on (double)click/tap
+ select object to place
+ absorb
+ teleport
+
+change styles as progress
+marble
+techno
+
+animated background
+
+teleport
+
+hex terrain
+
+freeze materials - material.freeze(); <- but custom shaders
+updatable
+mesh.freezeWorldMatrix();
+scene.blockMaterialDirtyMechanism = true;
+scene.freezeActiveMeshes();
+
+pointerlock (https://cs16.herokuapp.com/  -- setup.js)
+
