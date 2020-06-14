@@ -1,15 +1,15 @@
 ﻿window.addEventListener('DOMContentLoaded', function () {
   "use strict";
 
-  var crosshair;
-  var box;
-  var vrHelper;
-
   // set up engine
-  Game.setupEngine();
-  Game.setupGame();
+  let game = makeGame();
+  game.setupEngine();
+  game.setupGame();
 
+
+  // intro
   // pause
+  // start
 
   //Game.setupLevel();
   /// Game.loop
