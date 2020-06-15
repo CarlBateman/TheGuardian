@@ -1,15 +1,8 @@
 ﻿function createLevel(scene, seed) {
-  for (let i = 0; i < scene.meshes.length; i++) {
-    //if (scene.meshes[i].name === "tile") {
-      scene.meshes[i].dispose();
-    //}
-  }
+  do {
+    scene.meshes[0].dispose();
+  } while (scene.meshes.length > 0);
 
-  if (seed > 1) {
-    return;
-  }
-
-  //let seed = 110;
   let pos = scene.cameras[0].position;
   let resolution = { x: 1, y: 1 };
 
