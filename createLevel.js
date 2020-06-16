@@ -12,6 +12,8 @@
   scene.cameras[0].position.z = -30;
   scene.cameras[0].setTarget(BABYLON.Vector3.Zero());
 
+  scene.cameras[0].cop
+
 
   BABYLON.Effect.ShadersStore["Lines1PixelShader"] =
     `precision highp float;
@@ -20,7 +22,7 @@ varying vec2 vUV;
 void main(void) {
     vec2 t = abs(vUV-.5) * 2.;// / gl_FragCoord.z ;
     t =1.-t;
-    float bary = step(0.01, min(t.x, t.y));
+    float bary = step(0.1, min(t.x, t.y));
 
     gl_FragColor = vec4(bary,bary,bary, 1.0);
 }`;

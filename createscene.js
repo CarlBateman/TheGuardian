@@ -40,26 +40,7 @@
         scene.render();
       });
 
-      scene.onBeforeCameraRenderObservable.add((camera) => {
-      });
 
-      scene.onKeyboardObservable.add((kbInfo) => {
-        switch (kbInfo.type) {
-          case BABYLON.KeyboardEventTypes.KEYUP:
-            handleKeyUp(kbInfo);
-            canvas.focus();
-
-            break;
-        }
-      });
-
-      scene.onPointerObservable.add((pointerInfo) => {
-        switch (pointerInfo.type) {
-          case BABYLON.PointerEventTypes.POINTERUP:
-            handlePointerUp();
-            break;
-        }
-      });
 
       window.addEventListener('resize', function () {
         engine.resize();
@@ -94,7 +75,43 @@
       box.visible = false;
 
       createLevel(scene, 1);
+
+      scene.onBeforeCameraRenderObservable.add((camera) => {
+      });
+
+      scene.onKeyboardObservable.add((kbInfo) => {
+        switch (kbInfo.type) {
+          case BABYLON.KeyboardEventTypes.KEYUP:
+            handleKeyUp(kbInfo);
+            canvas.focus();
+
+            break;
+        }
+      });
+
+      scene.onPointerObservable.add((pointerInfo) => {
+        switch (pointerInfo.type) {
+          case BABYLON.PointerEventTypes.POINTERUP:
+            handlePointerUp();
+            break;
+        }
+      });
     };
+
+    function setupPause() { }
+    function setupPlay() { }
+
+    function pauseBehaviour() {
+      // show scena from a distance slowly rotate it
+      // blur/sharp focus
+      // show menu of options
+      // wait for "input"
+      // options==     continue, quit, restart level, pick level, progress
+    }
+
+    function playBehaviour() {
+      // actual gameplay
+    }
 
 
     let level = 1;
@@ -129,7 +146,7 @@
     let alpha = 0;
     var orbit_radius = 20;
     function update(){
-      alpha += 0.01;
+      alpha += 1;
       //box.position.x = orbit_radius * Math.cos(alpha);
       //box.position.y = orbit_radius * Math.sin(alpha);
       //box.position.z = 10 * Math.sin(2 * alpha);
